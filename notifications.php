@@ -9,9 +9,11 @@ if (!isLoggedIn()) {
 
 $conn = getDBConnection();
 $stmt = $conn->prepare("
-    SELECT * FROM notifications 
-    WHERE user_id = ? 
-    ORDER BY created_at DESC
+    SELECT n.*, t.id AS task_id
+    FROM notifications n
+    LEFT JOIN tasks t ON n.message LIKE CONCAT('%', t.title, '%') AND t.title IS NOT NULL AND t.title != ''
+    WHERE n.user_id = ? 
+    ORDER BY n.created_at DESC
 ");
 $stmt->execute([$_SESSION['user_id']]);
 $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -26,9 +28,9 @@ require_once 'includes/header.php';
             <button id="deleteAll" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">
                 <i class="fas fa-trash-alt mr-2"></i>Delete All
             </button>
-            <button id="markAllRead" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">
+        <button id="markAllRead" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200">
                 <i class="fas fa-check-double mr-2"></i>Mark All as Read
-            </button>
+        </button>
         </div>
     </div>
 
@@ -38,36 +40,44 @@ require_once 'includes/header.php';
                 No notifications found
             </div>
         <?php else:
-            foreach ($notifications as $notification): ?>
-                <div class="notification-item p-4 border rounded-lg <?php echo $notification['is_read'] ? '' : 'bg-red-50'; ?>" 
+            foreach ($notifications as $notification): 
+                // Determine the link for the notification
+                $link = '#';
+                if (!empty($notification['task_id'])) {
+                    $link = 'view_task.php?id=' . $notification['task_id'];
+                } elseif (stripos($notification['title'], 'attendance') !== false) {
+                    $link = 'attendance.php';
+                }
+                ?>
+                <a href="<?php echo $link; ?>" class="notification-item block p-4 border rounded-lg <?php echo $notification['is_read'] ? '' : 'bg-red-50'; ?>" 
                      data-notification-id="<?php echo $notification['id']; ?>">
                     <div class="flex items-start justify-between">
                         <div class="flex items-start flex-1">
-                            <div class="flex-shrink-0">
-                                <?php
-                                $iconClass = match($notification['type']) {
-                                    'success' => 'fas fa-check-circle text-green-500',
-                                    'warning' => 'fas fa-exclamation-triangle text-yellow-500',
-                                    'error' => 'fas fa-times-circle text-red-500',
-                                    default => 'fas fa-info-circle text-blue-500'
-                                };
-                                ?>
-                                <i class="<?php echo $iconClass; ?> fa-lg"></i>
-                            </div>
-                            <div class="ml-3 flex-1">
-                                <p class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($notification['title']); ?></p>
-                                <p class="text-sm text-gray-500"><?php echo htmlspecialchars($notification['message']); ?></p>
-                                <p class="text-xs text-gray-400 mt-1">
-                                    <?php echo date('M d, Y H:i', strtotime($notification['created_at'])); ?>
-                                </p>
-                            </div>
+                        <div class="flex-shrink-0">
+                            <?php
+                            $iconClass = match($notification['type']) {
+                                'success' => 'fas fa-check-circle text-green-500',
+                                'warning' => 'fas fa-exclamation-triangle text-yellow-500',
+                                'error' => 'fas fa-times-circle text-red-500',
+                                default => 'fas fa-info-circle text-blue-500'
+                            };
+                            ?>
+                            <i class="<?php echo $iconClass; ?> fa-lg"></i>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($notification['title']); ?></p>
+                            <p class="text-sm text-gray-500"><?php echo htmlspecialchars($notification['message']); ?></p>
+                            <p class="text-xs text-gray-400 mt-1">
+                                <?php echo date('M d, Y H:i', strtotime($notification['created_at'])); ?>
+                            </p>
+                        </div>
                         </div>
                         <button class="delete-notification ml-4 text-red-600 hover:text-red-800 focus:outline-none" 
                                 data-notification-id="<?php echo $notification['id']; ?>">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
-                </div>
+                </a>
             <?php endforeach;
         endif; ?>
     </div>
@@ -101,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 successMessage.textContent = `Successfully deleted ${data.count} notifications!`;
                 document.body.appendChild(successMessage);
                 setTimeout(() => successMessage.remove(), 3000);
+                updateNotificationBadgeCount(data.unreadCount);
             } else {
                 alert('Failed to delete notifications. Please try again.');
             }
@@ -128,11 +139,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 successMessage.textContent = 'All notifications marked as read!';
                 document.body.appendChild(successMessage);
                 setTimeout(() => successMessage.remove(), 3000);
+                updateNotificationBadgeCount(data.unreadCount);
             }
         });
     });
 
-    // Mark individual notification as read
+    // Mark individual notification as read and navigate
     document.querySelectorAll('.notification-item').forEach(item => {
         item.addEventListener('click', function(e) {
             // Don't trigger if delete button was clicked
@@ -140,7 +152,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
+            const link = this.getAttribute('href');
+            if (!link || link === '#') {
+                e.preventDefault(); // Prevent navigation for non-linked notifications
+            } else {
+                e.preventDefault(); // Prevent default link behavior to mark as read first
+            }
+            
             const notificationId = this.dataset.notificationId;
+
             fetch('mark_notification_read.php', {
                 method: 'POST',
                 headers: {
@@ -152,6 +172,12 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     this.classList.remove('bg-red-50');
+                    updateNotificationBadgeCount(data.unreadCount);
+                }
+            })
+            .finally(() => {
+                if (link && link !== '#') {
+                    window.location.href = link;
                 }
             });
         });
@@ -187,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     successMessage.textContent = 'Notification deleted successfully!';
                     document.body.appendChild(successMessage);
                     setTimeout(() => successMessage.remove(), 3000);
+                    updateNotificationBadgeCount(data.unreadCount);
 
                     // If no notifications left, show the "No notifications" message
                     if (document.querySelectorAll('.notification-item').length === 0) {

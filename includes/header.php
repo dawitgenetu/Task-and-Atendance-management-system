@@ -130,7 +130,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             
                             if ($unreadCount > 0): ?>
                                 <form method="POST" action="mark_notifications_read.php" class="inline">
-                                    <button type="submit" class="text-sm text-indigo-600 hover:text-indigo-900">
+                                    <button type="submit" id="headerMarkAllRead" class="text-sm text-indigo-600 hover:text-indigo-900">
                                         Mark All as Read
                                     </button>
                                 </form>
@@ -141,7 +141,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             $stmt = $conn->prepare("
                                 SELECT n.*, t.id as task_id 
                                 FROM notifications n 
-                                LEFT JOIN tasks t ON n.message LIKE CONCAT('%', t.title, '%')
+                                LEFT JOIN tasks t ON n.message LIKE CONCAT('%', t.title, '%') AND t.title IS NOT NULL AND t.title != ''
                                 WHERE n.user_id = ? 
                                 ORDER BY n.created_at DESC 
                                 LIMIT 10
@@ -154,8 +154,16 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     No notifications
                                 </div>
                             <?php else:
-                                foreach ($notifications as $notification): ?>
-                                    <a href="<?php echo isset($notification['task_id']) ? 'view_task.php?id=' . $notification['task_id'] : '#'; ?>" 
+                                foreach ($notifications as $notification): 
+                                    // Determine the link for the notification
+                                    $link = '#';
+                                    if (!empty($notification['task_id'])) {
+                                        $link = 'view_task.php?id=' . $notification['task_id'];
+                                    } elseif (stripos($notification['title'], 'attendance') !== false) {
+                                        $link = 'attendance.php';
+                                    }
+                                    ?>
+                                    <a href="<?php echo $link; ?>" 
                                        class="block notification-item p-4 border-b <?php echo $notification['is_read'] ? '' : 'unread'; ?>" 
                                        data-notification-id="<?php echo $notification['id']; ?>">
                                         <div class="flex items-start">
@@ -219,7 +227,30 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <main class="pt-16 ml-64 transition-all duration-300 ease-in-out" id="mainContent">
         <div class="container mx-auto px-4 py-6">
 
-    <!-- Notification Script -->
+    <!-- Global Notification Update Script -->
+    <script>
+        function updateNotificationBadgeCount(count) {
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            } else if (count > 0) {
+                const notificationButton = document.getElementById('notificationButton');
+                if (notificationButton) {
+                    const newBadge = document.createElement('span');
+                    newBadge.className = 'notification-badge';
+                    newBadge.textContent = count;
+                    notificationButton.appendChild(newBadge);
+                }
+            }
+        }
+    </script>
+
+    <!-- Notification Dropdown Script -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const notificationButton = document.getElementById('notificationButton');
@@ -241,38 +272,50 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
             }
         });
 
-        // Mark notifications as read when clicked
-        document.querySelectorAll('.notification-item').forEach(item => {
-            item.addEventListener('click', function() {
+        // Mark notifications as read when clicked in dropdown
+        document.querySelectorAll('#notificationDropdown .notification-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent navigation to handle fetch first
                 const notificationId = this.dataset.notificationId;
+                const link = this.getAttribute('href');
+
                 fetch('mark_notification_read.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ notification_id: notificationId })
                 })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         this.classList.remove('unread');
-                        updateNotificationBadge();
+                        updateNotificationBadgeCount(data.unreadCount);
+                    }
+                })
+                .finally(() => {
+                    if (link && link !== '#') {
+                        window.location.href = link;
                     }
                 });
             });
         });
-
-        // Update notification badge
-        function updateNotificationBadge() {
-            const badge = document.querySelector('.notification-badge');
-            if (badge) {
-                const unreadCount = document.querySelectorAll('.notification-item.unread').length;
-                if (unreadCount === 0) {
-                    badge.remove();
-                } else {
-                    badge.textContent = unreadCount;
-                }
-            }
+        
+        // Mark all as read from header dropdown
+        const headerMarkAllReadBtn = document.getElementById('headerMarkAllRead');
+        if (headerMarkAllReadBtn) {
+            headerMarkAllReadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                fetch('mark_all_notifications_read.php', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.querySelectorAll('#notificationDropdown .notification-item').forEach(item => {
+                                item.classList.remove('unread');
+                            });
+                            updateNotificationBadgeCount(data.unreadCount);
+                            this.style.display = 'none'; // Hide the button
+                        }
+                    });
+            });
         }
     });
     </script>

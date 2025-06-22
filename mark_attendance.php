@@ -446,22 +446,23 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: formData
                 }).then(response => {
                     if (response.ok) {
-                        // Show success message instead of reloading
-                        const successMessage = document.createElement('div');
-                        successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg';
-                        successMessage.textContent = 'Attendance marked successfully!';
-                        document.body.appendChild(successMessage);
-                        
-                        // Remove success message after 3 seconds
+                        // Update UI to show success
+                        recordingStatus.textContent = 'Attendance marked successfully!';
+                        stopRecordingBtn.style.display = 'none'; // Hide the button
+
+                        // Reload page after a short delay to show updated status
                         setTimeout(() => {
-                            successMessage.remove();
-                        }, 3000);
+                            videoModal.classList.add('hidden');
+                            window.location.reload();
+                        }, 2000);
                     } else {
                         throw new Error('Network response was not ok');
                     }
                 }).catch(error => {
                     console.error('Error:', error);
                     alert('Failed to submit attendance. Please try again.');
+                    // Reload on error to reset the UI and allow user to try again
+                    window.location.reload();
                 });
             };
             

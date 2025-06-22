@@ -138,22 +138,22 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <h4 class="text-lg font-medium text-gray-700 mb-2">Clock In Video</h4>
                     <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
                         <video id="clockInVideo" controls class="w-full h-full">
-                            <source src="" type="video/webm">
-                            Your browser does not support the video tag.
-                        </video>
+                        <source src="" type="video/webm">
+                        Your browser does not support the video tag.
+                    </video>
                     </div>
                 </div>
                 <div id="clockOutVideoContainer" class="hidden">
                     <h4 class="text-lg font-medium text-gray-700 mb-2">Clock Out Video</h4>
                     <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden">
                         <video id="clockOutVideo" controls class="w-full h-full">
-                            <source src="" type="video/webm">
-                            Your browser does not support the video tag.
-                        </video>
-                    </div>
+                        <source src="" type="video/webm">
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <style>
@@ -185,9 +185,9 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 
     <script>
-    function viewVideo(clockInVideo, clockOutVideo) {
-        const clockInVideoElement = document.getElementById('clockInVideo');
-        const clockOutVideoElement = document.getElementById('clockOutVideo');
+        function viewVideo(clockInVideo, clockOutVideo) {
+            const clockInVideoElement = document.getElementById('clockInVideo');
+            const clockOutVideoElement = document.getElementById('clockOutVideo');
         const clockInContainer = document.getElementById('clockInVideoContainer');
         const clockOutContainer = document.getElementById('clockOutVideoContainer');
         
@@ -196,56 +196,56 @@ $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
         clockOutVideoElement.pause();
         clockInVideoElement.currentTime = 0;
         clockOutVideoElement.currentTime = 0;
-        
+            
         // Set video sources and show containers
-        if (clockInVideo) {
-            clockInVideoElement.querySelector('source').src = clockInVideo;
-            clockInVideoElement.load();
+            if (clockInVideo) {
+                clockInVideoElement.querySelector('source').src = clockInVideo;
+                clockInVideoElement.load();
             clockInContainer.classList.remove('hidden');
-        } else {
+            } else {
             clockInContainer.classList.add('hidden');
-        }
-        
-        if (clockOutVideo) {
-            clockOutVideoElement.querySelector('source').src = clockOutVideo;
-            clockOutVideoElement.load();
+            }
+            
+            if (clockOutVideo) {
+                clockOutVideoElement.querySelector('source').src = clockOutVideo;
+                clockOutVideoElement.load();
             clockOutContainer.classList.remove('hidden');
-        } else {
+            } else {
             clockOutContainer.classList.add('hidden');
-        }
-        
-        // Show modal
+            }
+            
+            // Show modal
         const modal = document.getElementById('videoModal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
         // Prevent body scrolling
         document.body.style.overflow = 'hidden';
-    }
+        }
 
-    function closeVideoModal() {
+        function closeVideoModal() {
         const modal = document.getElementById('videoModal');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
-        
-        // Reset videos
-        const clockInVideo = document.getElementById('clockInVideo');
-        const clockOutVideo = document.getElementById('clockOutVideo');
-        clockInVideo.pause();
-        clockOutVideo.pause();
-        clockInVideo.currentTime = 0;
-        clockOutVideo.currentTime = 0;
+            
+            // Reset videos
+            const clockInVideo = document.getElementById('clockInVideo');
+            const clockOutVideo = document.getElementById('clockOutVideo');
+            clockInVideo.pause();
+            clockOutVideo.pause();
+            clockInVideo.currentTime = 0;
+            clockOutVideo.currentTime = 0;
         
         // Restore body scrolling
         document.body.style.overflow = '';
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('videoModal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeVideoModal();
         }
-    });
+
+        // Close modal when clicking outside
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVideoModal();
+            }
+        });
 
     // Close modal with Escape key
     document.addEventListener('keydown', function(e) {
