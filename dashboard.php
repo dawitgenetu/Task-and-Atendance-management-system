@@ -6,6 +6,9 @@ $role = getUserRole();
 $userId = $_SESSION['user_id'];
 $conn = getDBConnection();
 
+// Check for attendance success message
+$attendanceSuccess = isset($_GET['attendance_success']) && $_GET['attendance_success'] == '1';
+
 // Example statistics (replace with your actual queries)
 // $totalEmployees = 1; // Example
 // $totalTasks = 0;
@@ -49,17 +52,26 @@ if ($role === 'employee') {
     $stmt->execute([$userId]);
     $taskStats = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Get recent tasks
+    // Get recent tasks for this employee
     $stmt = $conn->prepare("
         SELECT t.*, 
             CONCAT(u.first_name, ' ', u.last_name) as assigned_to_name
         FROM tasks t
         JOIN users u ON t.assigned_to = u.id
+        WHERE t.assigned_to = ?
         ORDER BY t.due_date ASC
         LIMIT 5
     ");
-    $stmt->execute();
+    $stmt->execute([$userId]);
     $recentTasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get today's attendance record for employee
+    $stmt = $conn->prepare("
+        SELECT * FROM attendance 
+        WHERE employee_id = ? AND date = CURDATE()
+    ");
+    $stmt->execute([$userId]);
+    $todayAttendance = $stmt->fetch(PDO::FETCH_ASSOC);
 
 } else {
     // Get overall attendance statistics for today
@@ -118,11 +130,88 @@ if ($role === 'employee') {
     }
 </style>
 <div class="space-y-6">
+    <!-- Success Message for Attendance -->
+    <?php if ($attendanceSuccess): ?>
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span class="block sm:inline">Attendance marked successfully! Welcome to your dashboard.</span>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <!-- Welcome Banner -->
     <div class="rounded-lg p-6 mb-4 theme-primary">
         <h2 class="text-2xl md:text-3xl font-bold text-white">Welcome back, <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>!</h2>
         <p class="text-white text-lg mt-1">Here's what's happening today.</p>
     </div>
+
+    <?php if ($role === 'employee' && $todayAttendance): ?>
+        <!-- Employee Today's Attendance Status -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-semibold mb-4 theme-primary-text">Today's Attendance</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="flex items-center">
+                    <div class="bg-green-100 text-green-600 rounded-full p-3 mr-4">
+                        <i class="fas fa-sign-in-alt fa-lg"></i>
+                    </div>
+                    <div>
+                        <div class="text-gray-500 text-sm">Clock In</div>
+                        <div class="text-lg font-semibold"><?php echo date('h:i A', strtotime($todayAttendance['clock_in'])); ?></div>
+                    </div>
+                </div>
+                <?php if ($todayAttendance['clock_out']): ?>
+                    <div class="flex items-center">
+                        <div class="bg-red-100 text-red-600 rounded-full p-3 mr-4">
+                            <i class="fas fa-sign-out-alt fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-gray-500 text-sm">Clock Out</div>
+                            <div class="text-lg font-semibold"><?php echo date('h:i A', strtotime($todayAttendance['clock_out'])); ?></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="bg-blue-100 text-blue-600 rounded-full p-3 mr-4">
+                            <i class="fas fa-clock fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-gray-500 text-sm">Total Hours</div>
+                            <div class="text-lg font-semibold">
+                                <?php 
+                                    $clockIn = new DateTime($todayAttendance['clock_in']);
+                                    $clockOut = new DateTime($todayAttendance['clock_out']);
+                                    $interval = $clockIn->diff($clockOut);
+                                    echo $interval->format('%Hh %im');
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div class="flex items-center">
+                        <div class="bg-yellow-100 text-yellow-600 rounded-full p-3 mr-4">
+                            <i class="fas fa-clock fa-lg"></i>
+                        </div>
+                        <div>
+                            <div class="text-gray-500 text-sm">Status</div>
+                            <div class="text-lg font-semibold">Working</div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <div class="mt-4">
+                <span class="px-3 py-1 rounded-full text-sm font-medium <?php
+                    switch($todayAttendance['status']) {
+                        case 'present': echo 'bg-green-100 text-green-800'; break;
+                        case 'late': echo 'bg-yellow-100 text-yellow-800'; break;
+                        case 'absent': echo 'bg-red-100 text-red-800'; break;
+                        case 'half-day': echo 'bg-blue-100 text-blue-800'; break;
+                    }
+                ?>">
+                    <?php echo ucfirst($todayAttendance['status']); ?>
+                </span>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">

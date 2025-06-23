@@ -146,8 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $conn->commit();
             
-            // Redirect to refresh the page
-            header('Location: ' . $_SERVER['PHP_SELF']);
+            // Redirect to dashboard after successful attendance marking
+            header('Location: dashboard.php?attendance_success=1');
             exit();
             
         } catch (Exception $e) {
@@ -164,7 +164,14 @@ $attendance = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <div class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-2xl font-bold mb-6">Mark Attendance</h2>
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Mark Attendance</h2>
+        <?php if ($attendance): ?>
+            <a href="dashboard.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-tachometer-alt mr-2"></i> Go to Dashboard
+            </a>
+        <?php endif; ?>
+    </div>
     
     <?php if ($message): ?>
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
@@ -256,6 +263,11 @@ $attendance = $stmt->fetch(PDO::FETCH_ASSOC);
                                 echo $interval->format('%H hours %i minutes');
                             ?>
                         </p>
+                    </div>
+                    <div class="mt-4">
+                        <a href="dashboard.php" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors inline-block">
+                            <i class="fas fa-tachometer-alt mr-2"></i> Go to Dashboard
+                        </a>
                     </div>
                 </div>
             <?php endif; ?>
@@ -447,13 +459,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }).then(response => {
                     if (response.ok) {
                         // Update UI to show success
-                        recordingStatus.textContent = 'Attendance marked successfully!';
+                        recordingStatus.textContent = 'Attendance marked successfully! Redirecting to dashboard...';
                         stopRecordingBtn.style.display = 'none'; // Hide the button
 
-                        // Reload page after a short delay to show updated status
+                        // Redirect to dashboard after a short delay
                         setTimeout(() => {
                             videoModal.classList.add('hidden');
-                            window.location.reload();
+                            window.location.href = 'dashboard.php?attendance_success=1';
                         }, 2000);
                     } else {
                         throw new Error('Network response was not ok');
