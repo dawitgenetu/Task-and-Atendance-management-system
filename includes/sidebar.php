@@ -5,7 +5,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
 <style>
     #sidebar {
-        background: linear-gradient(180deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+        background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
     }
     #sidebar.collapsed {
         width: 64px !important;
@@ -78,19 +78,6 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         justify-content: center;
         padding-left: 0;
     }
-
-    /* Dark mode specific sidebar adjustments */
-    .dark #sidebar {
-        background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
-    }
-
-    .dark #sidebar .sidebar-link:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .dark #sidebar .sidebar-link.active {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
 </style>
 
 <div id="sidebar" class="flex flex-col fixed inset-y-0 left-0 text-white expanded transform transition-all duration-300 ease-in-out z-30">
@@ -141,42 +128,4 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             <span class="sidebar-text ml-4" id="logoutText">Logout</span>
         </a>
     </nav>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.getElementById('sidebar');
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const mainContent = document.getElementById('mainContent');
-    const topNav = document.getElementById('topNav');
-    
-    let isCollapsed = false;
-    
-    // Check if sidebar state is saved
-    const savedState = localStorage.getItem('sidebarCollapsed');
-    if (savedState === 'true') {
-        toggleSidebar();
-    }
-    
-    sidebarToggle.addEventListener('click', function() {
-        toggleSidebar();
-        localStorage.setItem('sidebarCollapsed', isCollapsed);
-    });
-    
-    function toggleSidebar() {
-        isCollapsed = !isCollapsed;
-        
-        if (isCollapsed) {
-            sidebar.classList.remove('expanded');
-            sidebar.classList.add('collapsed');
-            mainContent.style.marginLeft = '64px';
-            topNav.style.marginLeft = '64px';
-        } else {
-            sidebar.classList.remove('collapsed');
-            sidebar.classList.add('expanded');
-            mainContent.style.marginLeft = '256px';
-            topNav.style.marginLeft = '256px';
-        }
-    }
-});
-</script> 
+</div> 

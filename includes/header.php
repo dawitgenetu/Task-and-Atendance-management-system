@@ -43,7 +43,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Only start output after all potential redirects
 ?>
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,89 +51,19 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* CSS Variables for theming */
-        :root {
-            --bg-primary: #f3f4f6;
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #f9fafb;
-            --text-primary: #111827;
-            --text-secondary: #6b7280;
-            --text-tertiary: #9ca3af;
-            --border-primary: #e5e7eb;
-            --border-secondary: #d1d5db;
-            --shadow-primary: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-            --shadow-secondary: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --accent-primary: #b91c1c;
-            --accent-secondary: #7f1d1d;
-        }
-
-        .dark {
-            --bg-primary: #111827;
-            --bg-secondary: #1f2937;
-            --bg-tertiary: #374151;
-            --text-primary: #f9fafb;
-            --text-secondary: #d1d5db;
-            --text-tertiary: #9ca3af;
-            --border-primary: #374151;
-            --border-secondary: #4b5563;
-            --shadow-primary: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-            --shadow-secondary: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-            --accent-primary: #ef4444;
-            --accent-secondary: #dc2626;
-        }
-
-        /* Apply CSS variables */
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .bg-white {
-            background-color: var(--bg-secondary) !important;
-        }
-
-        .text-gray-800 {
-            color: var(--text-primary) !important;
-        }
-
-        .text-gray-700 {
-            color: var(--text-secondary) !important;
-        }
-
-        .text-gray-500 {
-            color: var(--text-tertiary) !important;
-        }
-
-        .border-gray-200 {
-            border-color: var(--border-primary) !important;
-        }
-
-        .border-gray-300 {
-            border-color: var(--border-secondary) !important;
-        }
-
-        .shadow {
-            box-shadow: var(--shadow-primary) !important;
-        }
-
-        .shadow-lg {
-            box-shadow: var(--shadow-secondary) !important;
-        }
-
         /* Custom scrollbar for sidebar */
         .sidebar-scroll::-webkit-scrollbar {
             width: 6px;
         }
         .sidebar-scroll::-webkit-scrollbar-track {
-            background: var(--bg-tertiary);
+            background: #1f2937;
         }
         .sidebar-scroll::-webkit-scrollbar-thumb {
-            background: var(--text-tertiary);
+            background: #4b5563;
             border-radius: 3px;
         }
         .sidebar-scroll::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
+            background: #6b7280;
         }
 
         /* Notification styles */
@@ -141,7 +71,7 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
             position: absolute;
             top: -5px;
             right: -5px;
-            background-color: var(--accent-primary);
+            background-color: #ef4444;
             color: white;
             border-radius: 9999px;
             padding: 0.25rem 0.5rem;
@@ -151,47 +81,15 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .notification-dropdown {
             max-height: 400px;
             overflow-y: auto;
-            background-color: var(--bg-secondary);
-            border: 1px solid var(--border-primary);
         }
         .notification-item {
             transition: background-color 0.2s;
-            border-bottom: 1px solid var(--border-primary);
         }
         .notification-item:hover {
-            background-color: var(--bg-tertiary);
+            background-color: #f3f4f6;
         }
         .notification-item.unread {
-            background-color: rgba(239, 68, 68, 0.1);
-        }
-
-        /* Theme switcher animation */
-        .theme-switch {
-            transition: transform 0.3s ease;
-        }
-        .theme-switch:hover {
-            transform: scale(1.1);
-        }
-
-        /* Dark mode specific overrides */
-        .dark .bg-gray-50 {
-            background-color: var(--bg-tertiary) !important;
-        }
-
-        .dark .bg-gray-100 {
-            background-color: var(--bg-secondary) !important;
-        }
-
-        .dark .text-gray-900 {
-            color: var(--text-primary) !important;
-        }
-
-        .dark .text-gray-600 {
-            color: var(--text-secondary) !important;
-        }
-
-        .dark .text-gray-400 {
-            color: var(--text-tertiary) !important;
+            background-color: #fef2f2;
         }
     </style>
 </head>
@@ -203,9 +101,6 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <h1 class="text-xl font-semibold text-gray-800">Amhara Media Corporation</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <!-- Theme Switcher -->
-                <?php include 'includes/theme_switcher.php'; ?>
-
                 <!-- Notifications -->
                 <div class="relative">
                     <?php
@@ -446,54 +341,5 @@ $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 userMenu.classList.add('hidden');
             }
         });
-    });
-    </script>
-
-    <!-- Theme Switcher Script -->
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        const html = document.documentElement;
-        
-        // Get saved theme from localStorage or default to 'light'
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        html.className = savedTheme;
-        updateThemeIcon(savedTheme);
-        
-        // Theme toggle functionality
-        themeToggle.addEventListener('click', function() {
-            const currentTheme = html.className;
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            html.className = newTheme;
-            localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-            
-            // Add a subtle animation
-            themeToggle.style.transform = 'scale(0.9)';
-            setTimeout(() => {
-                themeToggle.style.transform = 'scale(1)';
-            }, 100);
-        });
-        
-        function updateThemeIcon(theme) {
-            if (theme === 'dark') {
-                themeIcon.className = 'fas fa-sun fa-lg';
-                themeToggle.title = 'Switch to light mode';
-            } else {
-                themeIcon.className = 'fas fa-moon fa-lg';
-                themeToggle.title = 'Switch to dark mode';
-            }
-        }
-        
-        // Check for system preference on first load
-        if (!localStorage.getItem('theme')) {
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const defaultTheme = prefersDark ? 'dark' : 'light';
-            html.className = defaultTheme;
-            localStorage.setItem('theme', defaultTheme);
-            updateThemeIcon(defaultTheme);
-        }
     });
     </script> 

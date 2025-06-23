@@ -15,7 +15,14 @@ try {
     $stmt = $conn->prepare("DELETE FROM notifications WHERE user_id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     
-    echo json_encode(['success' => true, 'count' => $stmt->rowCount()]);
+    // Since all notifications are deleted, unreadCount is 0
+    $deletedCount = $stmt->rowCount();
+    
+    echo json_encode([
+        'success' => true, 
+        'count' => $deletedCount,
+        'unreadCount' => 0
+    ]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Database error']);

@@ -84,6 +84,27 @@ require_once 'includes/header.php';
 </div>
 
 <script>
+// Define the updateNotificationBadgeCount function
+function updateNotificationBadgeCount(count) {
+    const badge = document.querySelector('.notification-badge');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    } else if (count > 0) {
+        const notificationButton = document.getElementById('notificationButton');
+        if (notificationButton) {
+            const newBadge = document.createElement('span');
+            newBadge.className = 'notification-badge';
+            newBadge.textContent = count;
+            notificationButton.appendChild(newBadge);
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Delete all notifications
     document.getElementById('deleteAll').addEventListener('click', function() {
@@ -107,11 +128,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Show success message
                 const successMessage = document.createElement('div');
-                successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg';
+                successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
                 successMessage.textContent = `Successfully deleted ${data.count} notifications!`;
                 document.body.appendChild(successMessage);
                 setTimeout(() => successMessage.remove(), 3000);
-                updateNotificationBadgeCount(data.unreadCount);
+                updateNotificationBadgeCount(data.unreadCount || 0);
             } else {
                 alert('Failed to delete notifications. Please try again.');
             }
@@ -135,11 +156,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     item.classList.remove('bg-red-50');
                 });
                 const successMessage = document.createElement('div');
-                successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg';
+                successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
                 successMessage.textContent = 'All notifications marked as read!';
                 document.body.appendChild(successMessage);
                 setTimeout(() => successMessage.remove(), 3000);
-                updateNotificationBadgeCount(data.unreadCount);
+                updateNotificationBadgeCount(data.unreadCount || 0);
             }
         });
     });
@@ -172,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.success) {
                     this.classList.remove('bg-red-50');
-                    updateNotificationBadgeCount(data.unreadCount);
+                    updateNotificationBadgeCount(data.unreadCount || 0);
                 }
             })
             .finally(() => {
@@ -186,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Delete notification
     document.querySelectorAll('.delete-notification').forEach(button => {
         button.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent any default behavior
             e.stopPropagation(); // Prevent triggering the notification item click
             
             if (!confirm('Are you sure you want to delete this notification?')) {
@@ -193,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const notificationId = this.dataset.notificationId;
+            
             fetch('delete_notification.php', {
                 method: 'POST',
                 headers: {
@@ -205,27 +228,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     // Remove the notification item from the UI
                     const notificationItem = this.closest('.notification-item');
-                    notificationItem.remove();
+                    if (notificationItem) {
+                        notificationItem.remove();
+                    }
                     
                     // Show success message
                     const successMessage = document.createElement('div');
-                    successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg';
+                    successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded shadow-lg z-50';
                     successMessage.textContent = 'Notification deleted successfully!';
                     document.body.appendChild(successMessage);
                     setTimeout(() => successMessage.remove(), 3000);
-                    updateNotificationBadgeCount(data.unreadCount);
+                    
+                    // Update notification badge count
+                    updateNotificationBadgeCount(data.unreadCount || 0);
 
                     // If no notifications left, show the "No notifications" message
                     if (document.querySelectorAll('.notification-item').length === 0) {
                         const container = document.querySelector('.space-y-4');
-                        container.innerHTML = `
-                            <div class="text-center text-gray-500 py-8">
-                                No notifications found
-                            </div>
-                        `;
+                        if (container) {
+                            container.innerHTML = `
+                                <div class="text-center text-gray-500 py-8">
+                                    No notifications found
+                                </div>
+                            `;
+                        }
                     }
                 } else {
-                    alert('Failed to delete notification. Please try again.');
+                    alert('Failed to delete notification: ' + (data.message || 'Unknown error'));
                 }
             })
             .catch(error => {
