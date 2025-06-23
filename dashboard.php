@@ -116,17 +116,92 @@ if ($role === 'employee') {
 
 <style>
     .theme-primary {
-        background: linear-gradient(90deg, #b91c1c 0%, #7f1d1d 100%) !important;
+        background: linear-gradient(90deg, var(--accent-primary) 0%, var(--accent-secondary) 100%) !important;
     }
     .theme-primary-text {
-        color: #b91c1c !important;
+        color: var(--accent-primary) !important;
     }
     .theme-primary-bg {
-        background-color: #b91c1c !important;
+        background-color: var(--accent-primary) !important;
         color: #fff !important;
     }
     .theme-primary-border {
-        border-color: #b91c1c !important;
+        border-color: var(--accent-primary) !important;
+    }
+
+    /* Dark mode specific overrides for dashboard */
+    .dark .bg-gray-50 {
+        background-color: var(--bg-tertiary) !important;
+    }
+
+    .dark .bg-green-50 {
+        background-color: rgba(34, 197, 94, 0.1) !important;
+    }
+
+    .dark .bg-yellow-50 {
+        background-color: rgba(234, 179, 8, 0.1) !important;
+    }
+
+    .dark .bg-red-50 {
+        background-color: rgba(239, 68, 68, 0.1) !important;
+    }
+
+    .dark .bg-orange-50 {
+        background-color: rgba(249, 115, 22, 0.1) !important;
+    }
+
+    .dark .bg-blue-50 {
+        background-color: rgba(59, 130, 246, 0.1) !important;
+    }
+
+    .dark .bg-green-100 {
+        background-color: rgba(34, 197, 94, 0.2) !important;
+    }
+
+    .dark .bg-yellow-100 {
+        background-color: rgba(234, 179, 8, 0.2) !important;
+    }
+
+    .dark .bg-red-100 {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+    }
+
+    .dark .bg-blue-100 {
+        background-color: rgba(59, 130, 246, 0.2) !important;
+    }
+
+    .dark .text-green-600 {
+        color: #22c55e !important;
+    }
+
+    .dark .text-yellow-600 {
+        color: #eab308 !important;
+    }
+
+    .dark .text-red-600 {
+        color: #ef4444 !important;
+    }
+
+    .dark .text-blue-600 {
+        color: #3b82f6 !important;
+    }
+
+    .dark .text-orange-600 {
+        color: #f97316 !important;
+    }
+
+    /* Progress bars in dark mode */
+    .dark .bg-gray-200 {
+        background-color: var(--bg-tertiary) !important;
+    }
+
+    /* Card shadows in dark mode */
+    .dark .shadow {
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .dark .shadow-lg {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
     }
 </style>
 <div class="space-y-6">

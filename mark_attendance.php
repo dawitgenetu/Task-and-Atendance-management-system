@@ -316,6 +316,90 @@ $attendance = $stmt->fetch(PDO::FETCH_ASSOC);
 </div>
 
 <style>
+/* Dark mode support for mark attendance */
+.dark .bg-gray-50 {
+    background-color: var(--bg-tertiary) !important;
+}
+
+.dark .text-gray-700 {
+    color: var(--text-secondary) !important;
+}
+
+.dark .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+.dark .bg-yellow-100 {
+    background-color: rgba(234, 179, 8, 0.2) !important;
+}
+
+.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.dark .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.2) !important;
+}
+
+.dark .text-green-800 {
+    color: #16a34a !important;
+}
+
+.dark .text-yellow-800 {
+    color: #ca8a04 !important;
+}
+
+.dark .text-red-800 {
+    color: #dc2626 !important;
+}
+
+.dark .text-blue-800 {
+    color: #2563eb !important;
+}
+
+.dark .text-green-600 {
+    color: #22c55e !important;
+}
+
+/* Video modal dark mode */
+.dark #video-modal .bg-white {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.dark #video-modal .text-gray-600 {
+    color: var(--text-secondary) !important;
+}
+
+/* Success and error messages in dark mode */
+.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+}
+
+.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.dark .border-green-400 {
+    border-color: #22c55e !important;
+}
+
+.dark .border-red-400 {
+    border-color: #ef4444 !important;
+}
+
+.dark .text-green-700 {
+    color: #16a34a !important;
+}
+
+.dark .text-red-700 {
+    color: #dc2626 !important;
+}
+
 @keyframes success-circle {
     0% {
         transform: scale(0);

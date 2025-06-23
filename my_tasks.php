@@ -201,4 +201,109 @@ $tasks = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
+<style>
+/* Dark mode support for my tasks */
+.dark .bg-gray-50 {
+    background-color: var(--bg-tertiary) !important;
+}
+
+.dark .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+.dark .text-gray-500 {
+    color: var(--text-secondary) !important;
+}
+
+.dark .divide-gray-200 {
+    border-color: var(--border-primary) !important;
+}
+
+.dark .border-gray-300 {
+    border-color: var(--border-secondary) !important;
+}
+
+.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+}
+
+.dark .bg-yellow-100 {
+    background-color: rgba(234, 179, 8, 0.2) !important;
+}
+
+.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+}
+
+.dark .bg-gray-100 {
+    background-color: var(--bg-tertiary) !important;
+}
+
+.dark .text-green-800 {
+    color: #16a34a !important;
+}
+
+.dark .text-yellow-800 {
+    color: #ca8a04 !important;
+}
+
+.dark .text-red-800 {
+    color: #dc2626 !important;
+}
+
+.dark .text-gray-800 {
+    color: var(--text-secondary) !important;
+}
+
+.dark .text-indigo-600 {
+    color: #6366f1 !important;
+}
+
+.dark .hover\:text-indigo-900:hover {
+    color: #4338ca !important;
+}
+
+/* Success and error messages in dark mode */
+.dark .bg-green-100 {
+    background-color: rgba(34, 197, 94, 0.1) !important;
+}
+
+.dark .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.dark .border-green-400 {
+    border-color: #22c55e !important;
+}
+
+.dark .border-red-400 {
+    border-color: #ef4444 !important;
+}
+
+.dark .text-green-700 {
+    color: #16a34a !important;
+}
+
+.dark .text-red-700 {
+    color: #dc2626 !important;
+}
+
+/* Table styling in dark mode */
+.dark table {
+    background-color: var(--bg-secondary) !important;
+}
+
+.dark thead {
+    background-color: var(--bg-tertiary) !important;
+}
+
+.dark tbody tr {
+    border-bottom: 1px solid var(--border-primary) !important;
+}
+
+.dark tbody tr:hover {
+    background-color: var(--bg-tertiary) !important;
+}
+</style>
+
 <?php require_once 'includes/footer.php'; ?> 
